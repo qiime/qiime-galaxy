@@ -1,0 +1,125 @@
+	AutoQiime
+
+add_qiime_labels.py
+add_taxa.py
+adjust_seq_orientation.py
+align_seqs.py	blast_db
+alpha_diversity.py	show_metrics
+alpha_rarefaction.py	force,print_only
+ampliconnoise.py	force,print_only
+assign_taxonomy.py	blast_db
+beta_diversity.py	show_metrics
+beta_diversity_through_plots.py	force,print_only
+beta_significance.py
+blast_wrapper.py
+categorized_dist_scatterplot.py
+clean_raxml_parsimony_tree.py
+cluster_quality.py	metric
+collate_alpha.py
+compare_3d_plots.py
+compare_alpha_diversity.py
+compare_categories.py
+compare_distance_matrices.py
+conditional_uncovered_probability.py	show_metrics
+consensus_tree.py
+convert_fastaqual_to_fastq.py
+convert_otu_table_to_unifrac_sample_mapping.py
+convert_unifrac_sample_mapping_to_otu_table.py
+core_qiime_analyses.py	force
+count_seqs.py
+check_id_map.py	verbose
+denoise_wrapper.py	force_overwrite
+dissimilarity_mtx_stats.py
+distance_matrix_from_mapping.py
+
+#exclude_seqs_by_blast.py -> No se puede integrar en Galaxy porque no se le puede indicar el output (only basename)
+
+extract_seqs_by_sample_id.py
+filter_alignment.py
+filter_distance_matrix.py
+filter_fasta.py
+filter_otus_by_sample.py
+filter_otus_from_otu_table.py
+filter_samples_from_otu_table.py
+filter_tree.py
+
+#fix_arb_fasta.py -> que hace exactamente?
+
+identify_chimeric_seqs.py	blast_db
+
+#identify_missing_files.py -> necesario en Galaxy?
+
+inflate_denoiser_output.py
+insert_seqs_into_tree.py
+jackknifed_beta_diversity.py
+make_2d_plots.py
+make_3d_plots.py
+
+# make_bootstrapped_tree.py -> pone .pdf al final del output_fp si no lo lleva
+
+make_distance_boxplots.py
+make_distance_comparison_plots.py
+make_distance_histograms.py	monte_carlo
+make_fastq.py
+make_library_id_lists.py	debug
+make_otu_heatmap_html.py
+make_otu_heatmap.py
+make_otu_network.py
+make_otu_table.py
+make_per_library_sff.py
+make_phylogeny.py
+make_prefs_file.py
+make_rarefaction_plots.py	webpage
+
+# make_tep.py -> absolute path
+
+merge_mapping_files.py
+merge_otu_maps.py
+merge_otu_tables.py
+multiple_rarefactions_even_depth.py
+multiple_rarefactions.py
+neighbor_joining.py
+nmds.py
+otu_category_significance.py
+per_library_stats.py
+pick_otus.py	blast_db
+pick_otus_through_otu_table.py
+pick_reference_otus_through_otu_table.py
+pick_rep_set.py
+pick_subsampled_reference_otus_through_otu_table.py	force
+plot_rank_abundance_graph.py
+plot_semivariogram.py
+plot_taxa_summary.py
+principal_coordinates.py
+print_qiime_config.py
+
+# process_iseq.py
+
+process_qseq.py
+process_sff.py
+quality_scores_plot.py	verbose
+relatedness.py
+shared_phylotypes.py
+simsam.py
+single_rarefaction.py	lineages_included
+sort_otu_table.py
+split_fasta_on_sample_ids.py
+split_libraries_fastq.py	last_bad_quality_char
+split_libraries.py	remove_unassigned
+split_otu_table_by_taxonomy.py
+split_otu_table.py
+submit_to_mgrast.py
+subsample_fasta.py
+summarize_otu_by_cat.py
+summarize_taxa.py	relative_abundance
+summarize_taxa_through_plots.py	force,print_only
+supervised_learning.py	force
+transform_coordinate_matrices.py
+tree_compare.py
+trflp_file_to_otu_table.py
+trim_sff_primers.py
+truncate_fasta_qual_files.py
+truncate_reverse_primer.py
+unweight_fasta.py
+upgma_cluster.py
+validate_demultiplexed_fasta.py

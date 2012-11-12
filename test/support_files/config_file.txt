@@ -1,0 +1,8 @@
+# At the beggingn we can have some comments
+# More than one line comments
+	Section 1
+script1.py
+script2.py
+
+	Section 2
+script3.py
