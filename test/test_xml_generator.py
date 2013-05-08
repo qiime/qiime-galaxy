@@ -720,7 +720,8 @@ class XmlGeneratorTest(TestCase):
     def setUp(self):
         self.info = ScriptInfo(script_info_example, 'example_script',
             'example_script.py')
-        self.script_fp = './support_files/example_script.py'
+        test_dir = path.dirname(path.abspath(__file__))
+        self.script_fp = path.join(test_dir,'./support_files/example_script.py')
         self.output_dir = tempfile.gettempdir()
 
         self._paths_to_clean_up = []
