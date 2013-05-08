@@ -305,8 +305,9 @@ class ScriptInfoTest(TestCase):
         self.assertEqual(obs.id, 'example_script')
         self.assertEqual(obs.name, 'example script')
         self.assertEqual(obs.version, '1.4.0-dev')
-        self.assertEqual(obs.description, 'An example of brief description')
-        self.assertEqual(obs.help, 'An example of script description')
+        self.assertEqual(obs.description,'An example of brief description')
+        self.assertEqual(obs.help,
+            'An example of script description\nDescription of the script output')
         self.assertEqual(obs.command, 'example_script.py')
 
         obs_option = obs.required_opts[0]
@@ -770,7 +771,7 @@ script_info_example = {}
 script_info_example['brief_description'] = "An example of brief description"
 script_info_example['script_description'] = "An example of script description"
 script_info_example['script_usage'] = [("Example", "Field not used", "%prog ")]
-script_info_example['output_description'] = "Field not used"
+script_info_example['output_description'] = "Description of the script output"
 script_info_example['required_options'] = [
     make_option('-i', '--input_fp', type="existing_path",
                 help='An example of existing_path option'),
@@ -790,7 +791,7 @@ text_script_info = {}
 text_script_info['brief_description'] = "Example of script info with string options"
 text_script_info['script_description'] = "An example of script info with a required string option and an optional string option"
 text_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-text_script_info['output_description'] = "Field not used"
+text_script_info['output_description'] = "Description of the script output"
 text_script_info['required_options'] = [
     make_option('-s', '--string', type="string",
         help="An example of required text option"),
@@ -806,7 +807,7 @@ integer_float_script_info['brief_description'] = "Example of script info with in
 integer_float_script_info['script_description'] = "An example of script info with a required int option and an optional float option"
 integer_float_script_info['script_usage'] = [
     ("Example", "Field not used", "%prog ")]
-integer_float_script_info['output_description'] = "Field not used"
+integer_float_script_info['output_description'] = "Description of the script output"
 integer_float_script_info['required_options'] = [
     make_option('-i', '--integer', type="int",
         help="An example of required integer option"),
@@ -821,7 +822,7 @@ data_select_script_info = {}
 data_select_script_info['brief_description'] = "Example of script info with existing_filepath and choice options"
 data_select_script_info['script_description'] = "An example of script info with a required existing_filepath option and an optional choice option"
 data_select_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-data_select_script_info['output_description'] = "Field not used"
+data_select_script_info['output_description'] = "Description of the script output"
 data_select_script_info['required_options'] = [
     make_option('--input_fp', type='existing_filepath',
         help="An example of required existing_filepath option")
@@ -836,7 +837,7 @@ input_dir_script_info = {}
 input_dir_script_info['brief_description'] = "Example of script info with existing_path and existing_dirpath options"
 input_dir_script_info['script_description'] = "An example of script info with a required existing_path option and an optional existing_dirpath option"
 input_dir_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-input_dir_script_info['output_description'] = "Field not used"
+input_dir_script_info['output_description'] = "Description of the script output"
 input_dir_script_info['required_options'] = [
     make_option('-p', '--path', type='existing_path',
         help="An example of required existing_path option")
@@ -851,7 +852,7 @@ repeat_script_info = {}
 repeat_script_info['brief_description'] = "Example of script info with existing_filepaths options"
 repeat_script_info['script_description'] = "An example of script info with a required existing_filepaths option and an optional existing_filepaths option"
 repeat_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-repeat_script_info['output_description'] = "Field not used"
+repeat_script_info['output_description'] = "Description of the script output"
 repeat_script_info['required_options'] = [
     make_option('-i', '--input_fps', type='existing_filepaths',
         help="An example of required existing_filepaths option")
@@ -866,7 +867,7 @@ output_script_info = {}
 output_script_info['brief_description'] = "Example of script info with new_filepath options"
 output_script_info['script_description'] = "An example of script info with a required new_filepath option and an optional new_filepath option"
 output_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-output_script_info['output_description'] = "Field not used"
+output_script_info['output_description'] = "Description of the script output"
 output_script_info['required_options'] = [
     make_option('-o', '--output_fp', type='new_filepath',
         help="An example of required new_filepath option")
@@ -882,7 +883,7 @@ output_dir_script_info['brief_description'] = "Example of script info with new_p
 output_dir_script_info['script_description'] = "An example of script info with a required new_path option and an optional new_dirpath option"
 output_dir_script_info['script_usage'] = [
     ("Example", "Field not used", "%prog ")]
-output_dir_script_info['output_description'] = "Field not used"
+output_dir_script_info['output_description'] = "Description of the script output"
 output_dir_script_info['required_options'] = [
     make_option('-p', '--new_path', type='new_path',
         help="An example of required new_path option")
@@ -897,7 +898,7 @@ boolean_script_info = {}
 boolean_script_info['brief_description'] = "Example of script info with boolean options"
 boolean_script_info['script_description'] = "An example of script info with an optional boolean option (a boolean option never is required)"
 boolean_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-boolean_script_info['output_description'] = "Field not used"
+boolean_script_info['output_description'] = "Description of the script output"
 boolean_script_info['required_options'] = []
 boolean_script_info['optional_options'] = [
     make_option('-t', '--true_boolean', action='store_true',
@@ -911,7 +912,7 @@ text_data_script_info = {}
 text_data_script_info['brief_description'] = "Example of script info with string, int, float and existing_filepath options"
 text_data_script_info['script_description'] = "An example of script info with a required string option, a required int option, an optional float option and an optional existing_filepath option"
 text_data_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-text_data_script_info['output_description'] = "Field not used"
+text_data_script_info['output_description'] = "Description of the script output"
 text_data_script_info['required_options'] = [
     make_option('-s', '--string', type="string", default="some_value",
         help="An example of required text option [default: %default]")
@@ -926,7 +927,7 @@ select_XML_script_info = {}
 select_XML_script_info['brief_description'] = "Example of script info with a choice options"
 select_XML_script_info['script_description'] = "An example of script info with a required choice option and an optional choice option"
 select_XML_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-select_XML_script_info['output_description'] = "Field not used"
+select_XML_script_info['output_description'] = "Description of the script output"
 select_XML_script_info['required_options'] = [
     make_option('-c', '--choice', type='choice',
         choices=['choice1', 'choice2', 'choice3'],
@@ -943,7 +944,7 @@ multiple_select_XML_script_info = {}
 multiple_select_XML_script_info['brief_description'] = "Example of script info with a choice options"
 multiple_select_XML_script_info['script_description'] = "An example of script info with a required choice option and an optional choice option"
 multiple_select_XML_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
-multiple_select_XML_script_info['output_description'] = "Field not used"
+multiple_select_XML_script_info['output_description'] = "Description of the script output"
 multiple_select_XML_script_info['required_options'] = [
     make_option('-c', '--choice', type='multiple_choice',
         mchoices=['choice1', 'choice2', 'choice3'],
@@ -957,7 +958,7 @@ output_XML_script_info['brief_description'] = "Example of script info with new_p
 output_XML_script_info['script_description'] = "An example of script info with a required new_path and an optional new_filepath option"
 output_XML_script_info['script_usage'] = [
     ("Example", "Field not used", "%prog ")]
-output_XML_script_info['output_description'] = "Field not used"
+output_XML_script_info['output_description'] = "Description of the script output"
 output_XML_script_info['required_options'] = [
     make_option('-p', '--new_path', type='new_path',
         help="An example of required new_path option")
@@ -1229,7 +1230,8 @@ compress_path.py -i example_script_output -o $output_fp
 \t<outputs>
 \t\t<data format="tgz" name="output_fp"/>
 \t</outputs>
-\t<help>An example of script description</help>
+\t<help>An example of script description
+Description of the script output</help>
 </tool>
 """
 
