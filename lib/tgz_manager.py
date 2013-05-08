@@ -13,7 +13,7 @@ import tarfile
 from shutil import move
 from os import path
 
-ERROR_MSG = "%s is not a gzip file!"
+ERROR_MSG = "The input file is not a gzip file!"
 
 def compress_to_tgz(in_path, tgz_fp):
     """Generate a tgz file with the contents of the provided path
@@ -53,5 +53,5 @@ def extract_from_tgz(tgz_file, output_path):
         t.close()
     except tarfile.ReadError, e:
             if str(e) == "not a gzip file":
-                raise ValueError, ERROR_MSG % tgz_file
+                raise ValueError, ERROR_MSG
             raise tarfile.ReadError, e
