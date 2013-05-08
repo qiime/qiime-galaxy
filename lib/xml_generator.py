@@ -44,12 +44,16 @@ LIST_DICT_TO_STRING_FUNCTION = """
 """
 
 class OptionInfo(object):
-    """
-        Class for a what an option is from Galaxy's XML point of view
-
-        A cogent.util.option_parsing.CogentOption must be given
-    """
+    """Class modeling a script option from the Galaxy's XML point of view"""
     def __init__(self, option):
+        """Creates the OptionInfo object from a cogent's option
+
+        Input:
+            option: a cogent.util.option_parsing.CogentOption object
+
+        Note: raises ValueError if the given option type is not defined in 
+            Galaxy
+        """
         self.name = option.get_opt_string().replace("-", "")
 
         # Type boolean is not defined in 
@@ -97,39 +101,36 @@ class OptionInfo(object):
             self.format = "tgz"
 
     def get_command_line_string(self):
-        """
-            Return the command line option
-        """
+        """Return the command line option"""
         return self.short_opt if self.short_opt else self.long_opt
 
     def is_short_command_line(self):
-        """
-            Return True if the command line option is short (e.g. '-e'),
-            False if it is long (e.g. --example)
+        """Returns if we can use the short option command line style
+
+        Return True if the command line option is short (e.g. '-e'),
+        False if it is long (e.g. --example)
         """
         return self.short_opt is not None
 
     def has_default(self):
-        """
-            Return True if the option has default value
-        """
+        """Return True if the option has default value"""
         return self.default is not None
 
 
 class ScriptInfo(object):
-    """
-        Class for a what an script is from Galaxy's XML point of view
-
-        Must be given:
-            - a dict of objects which it used in cogent.util.option_parsing
-                to build command line interfaces according to standards
-                developed in the Knight Lab, and enforced in QIIME.
-                (More info at:
-                    cogent.util.option_parsing.parse_command_line_parameters)
-            - the name of the script
-            - the base command used to invoke the script
-    """
+    """Class modeling a script from Galaxy's point of view"""
     def __init__(self, script_info_dict, script_name, command):
+        """Creates the ScriptInfo object
+
+        Input:
+            script_info_dict: a dictionary of object which it is used in
+                cogent.util.option_parsing to build the command line interfaces
+                according to standards developed in the Knight Lab, and
+                enforce in QIIME. (More info at:
+                cogent.util.option_parsing.parse_command_line_parameters)
+            script_name: a string with the name of the script
+            command: a string with the base command used to call the script
+        """
         self.id = script_name
         self.name = script_name.replace("_", " ")
         self.version = script_info_dict['version']
@@ -145,20 +146,17 @@ class ScriptInfo(object):
         self.command = command
 
     def _get_optional_opt(self, name):
-        """
-            Returns the optional option called 'name' if it exists
-        """
+        """Returns the optional option called 'name' if it exists."""
         for opt in self.optional_opts:
             if opt.name == name:
                 return opt
         return None
 
     def remove_options(self, remove_opts):
-        """
-            Remove the options listed at 'remove_opts'
+        """Remove the options listed at 'remove_opts'
 
-            Raises 'ValueError' if one of the listed options
-            does not exists or it is required.
+        Note: raises 'ValueError' if one of the listed options does not exists
+            or it is required by the script.
         """
         if remove_opts:
             opt_names = remove_opts.split(',')
@@ -173,12 +171,13 @@ class ScriptInfo(object):
 
 
 class CommandGenerator(object):
-    """
-        Class for generate the text of the tag 'commmand'
-
-        A ScriptInfo must be given.
-    """
+    """Class that generates the command line text for the 'command' tag"""
     def __init__(self, info):
+        """Creates the CommandGenerator object
+
+        Input:
+            info: a ScriptInfo object
+        """
         self.info = info
         self.command_text = self.info.command
 
@@ -211,9 +210,7 @@ class CommandGenerator(object):
         self._compress_command = ""
 
     def update(self):
-        """
-            Generate the command text
-        """
+        """Generate the text for the command tag"""
         self._is_optional = False
         for option in self.info.required_opts:
             self._type_dependant_functions[option.type](option)
@@ -226,9 +223,7 @@ class CommandGenerator(object):
                             self._compress_command
 
     def _generate_text_command_text(self, option):
-        """
-            Generate the command text for a option of type text
-        """
+        """Generate the command text for a option of type text"""
         option_string = " " + option.get_command_line_string()
         option_string += " " if option.is_short_command_line() else "="
         option_string += "$" + option.name
@@ -240,9 +235,7 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_data_select_command_text(self, option):
-        """
-            Generate the command text for a option of type data or select
-        """
+        """Generate the command text for a option of type data or select"""
         option_string = " " + option.get_command_line_string()
         option_string += " " if option.is_short_command_line() else "="
         option_string += "$" + option.name
@@ -254,9 +247,7 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_integer_float_command_text(self, option):
-        """
-            Generate the command text for a option of type integer or float
-        """
+        """Generate the command text for a option of type integer or float"""
         option_string = " " + option.get_command_line_string()
         option_string += " " if option.is_short_command_line() else "="
         option_string += "$" + option.name
@@ -268,16 +259,12 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_boolean_command_text(self, option):
-        """
-            Generate the command text for a option of type boolean
-        """
+        """Generate the command text for a option of type boolean"""
         self.command_text += "\n#if $%s:\n %s\n#end if\n" % (option.name,
             option.get_command_line_string())
 
     def _generate_repeat_command_text(self, option):
-        """
-            Generate the command text for a option of type repeat
-        """
+        """Generate the command text for a option of type repeat"""
         option_string = ""
 
         if not self._list_dict_to_string_is_defined:
@@ -295,9 +282,7 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_output_command_text(self, option):
-        """
-            Generate the command text for a option of type output
-        """
+        """Generate the command text for a option of type output"""
         option_string = " " + option.get_command_line_string()
         option_string += " " if option.is_short_command_line() else "="
         option_string += "$" + option.name
@@ -305,8 +290,10 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_output_dir_command_text(self, option):
-        """
-            Generate the command text for a option of type output_dir
+        """Generate the command text for a option of type output_dir
+
+        Note: raises ValueError if an option of this type has been already
+            processed
         """
         if self._compress_command != "":
             raise ValueError, "Two options which generate a directory as" + \
@@ -324,8 +311,10 @@ class CommandGenerator(object):
         self.command_text += option_string
 
     def _generate_input_dir_command_text(self, option):
-        """
-            Generate the command text for a option of type input_dir
+        """Generate the command text for a option of type input_dir
+
+        Note: raises ValueError if an option of this type has been already
+            processed
         """
         if self._uncompress_command != "":
             raise ValueError, "Two options which generate a directory" + \
@@ -344,16 +333,17 @@ class CommandGenerator(object):
 
 
 class XmlOptionsAttributesGenerator(object):
-    """
-        Class for generate the XML tags and attributes of the inputs and the outputs
-
-        Must be given:
-            - a ScriptInfo
-            - a xml.dom.minidom.Document
-            - inputs node of the XML document
-            - outputs node of the XML document
+    """Class that generates the XML tags and attributes for the script options
     """
     def __init__(self, info, doc, inputs, outputs):
+        """Creates the XmlOptionsAttributesGenerator object
+
+        Input:
+            info: a ScriptInfo object
+            doc: a xml.dom.minidom.Document object
+            inputs: the DOM element of 'doc' that models the script inputs
+            outputs: the DOM element of 'doc' that models the script outputs
+        """
         self.info = info
         self.doc = doc
         self.inputs = inputs
@@ -386,9 +376,7 @@ class XmlOptionsAttributesGenerator(object):
                                     self._generate_boolean_attributes
 
     def update(self):
-        """
-            Updates the inputs and outputs node adding the script options
-        """
+        """Updates the inputs and outputs node adding the script options"""
         self._is_optional = False
         for option in self.info.required_opts:
             self._type_dependant_functions[option.type](option)
@@ -398,9 +386,7 @@ class XmlOptionsAttributesGenerator(object):
             self._type_dependant_functions[option.type](option)
 
     def _generate_integer_float_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type integer.
-        """
+        """Generate the XML node and attributes for an integer option"""
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
@@ -417,9 +403,7 @@ class XmlOptionsAttributesGenerator(object):
 
 
     def _generate_text_data_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type text,
-            float and data.
+        """Generate the XML node and attributes for a text, float or data option
         """
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
@@ -434,9 +418,7 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(param)
 
     def _generate_input_dir_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type input_dir
-        """
+        """Generate the XML node and attributes for an input_dir option"""
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", "data")
@@ -446,9 +428,7 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(param)
 
     def _generate_select_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type select
-        """
+        """Generate the XML node and attributes for a select option"""
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
@@ -474,9 +454,7 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(param)
 
     def _generate_multiple_select_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type select
-        """
+        """Generate the XML node and attributes for a multiple select option"""
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", "select")
@@ -503,9 +481,7 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(param)
 
     def _generate_repeat_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type repeat
-        """
+        """Generate the XML node and attributes for a repeat option"""
         repeat = self.doc.createElement("repeat")
         repeat.setAttribute("name", "input_files_%s" % option.name)
         repeat.setAttribute("title", option.name)
@@ -521,18 +497,14 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(repeat)
         
     def _generate_output_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type output
-        """
+        """Generate the XML node and attributes for an output option"""
         data = self.doc.createElement("data")
         data.setAttribute("name", option.name)
         data.setAttribute("format", option.format)
         self.outputs.appendChild(data)
 
     def _generate_boolean_attributes(self, option):
-        """
-            Generate the XML nodes and attributes for a option of type boolean
-        """
+        """Generate the XML node and attributes for a boolean option"""
         param = self.doc.createElement("param")
         param.setAttribute("type", option.type)
         param.setAttribute("name", option.name)
@@ -542,8 +514,10 @@ class XmlOptionsAttributesGenerator(object):
         self.inputs.appendChild(param)
 
 def generate_xml_string(info):
-    """
-        Generate the xml string
+    """Generate the xml string for a given script
+
+    Input:
+        info: a ScriptInfo object
     """
     doc = Document()
 
@@ -595,8 +569,13 @@ def generate_xml_string(info):
     return doc.toprettyxml(indent="\t")
 
 def make_xml(script_fp, output_dir, remove_opts):
-    """
-        Generate the xml file
+    """Generate the XML file for a given script
+
+    Input:
+        script_fp: path to the script
+        output_dir: folder where to store the XML file
+        remove_opts: list of option names that won't be included in the
+            Galaxy's interface
     """
     dir_path, command = split(script_fp)
     fname, ext = splitext(command)
