@@ -274,6 +274,28 @@ class OptionInfoTest(TestCase):
         obs = OptionInfo(option)
         self.assertTrue(obs.has_default())
 
+    def test_get_label(self):
+        option = make_option('-e', '--example_opt', type='string',
+                    help='Example option')
+        obj = OptionInfo(option)
+        obs = obj.get_label()
+        exp = '-e/--example_opt: Example option'
+        self.assertEqual(obs, exp)
+
+        option = make_option('--example_opt', type='int',
+                    help='Example option without short')
+        obj = OptionInfo(option)
+        obs = obj.get_label()
+        exp = '--example_opt: Example option without short'
+        self.assertEqual(obs, exp)
+
+        option = make_option('-e', type='int',
+            help='Example option without long')
+        obj = OptionInfo(option)
+        obs = obj.get_label()
+        exp = '-e: Example option without long'
+        self.assertEqual(obs, exp)
+
 class ScriptInfoTest(TestCase):
     def setUp(self):
         self.info_dict = script_info_example
@@ -994,7 +1016,7 @@ exp_cg_repeat_2 = """repeat_script.py
 exp_integer_float_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required integer option" name="integer" optional="False" type="integer" value="0"/>
+\t\t<param label="-i/--integer: An example of required integer option" name="integer" optional="False" type="integer" value="0"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1003,8 +1025,8 @@ exp_integer_float_1 = """<?xml version="1.0" ?>
 exp_integer_float_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required integer option" name="integer" optional="False" type="integer" value="0"/>
-\t\t<param label="An example of optional float option" name="float" optional="True" type="float"/>
+\t\t<param label="-i/--integer: An example of required integer option" name="integer" optional="False" type="integer" value="0"/>
+\t\t<param label="--float: An example of optional float option" name="float" optional="True" type="float"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1013,7 +1035,7 @@ exp_integer_float_2 = """<?xml version="1.0" ?>
 exp_text_data_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param default="some_value" label="An example of required text option [default: some_value]" name="string" optional="False" type="text"/>
+\t\t<param default="some_value" label="-s/--string: An example of required text option [default: some_value]" name="string" optional="False" type="text"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1022,8 +1044,8 @@ exp_text_data_1 = """<?xml version="1.0" ?>
 exp_text_data_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param default="some_value" label="An example of required text option [default: some_value]" name="string" optional="False" type="text"/>
-\t\t<param label="An example of optional existing_filepath option" name="input_fp" optional="True" type="data"/>
+\t\t<param default="some_value" label="-s/--string: An example of required text option [default: some_value]" name="string" optional="False" type="text"/>
+\t\t<param label="--input_fp: An example of optional existing_filepath option" name="input_fp" optional="True" type="data"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1032,7 +1054,7 @@ exp_text_data_2 = """<?xml version="1.0" ?>
 exp_input_dir = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required existing_path option" name="path" type="data"/>
+\t\t<param label="-p/--path: An example of required existing_path option" name="path" type="data"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1041,7 +1063,7 @@ exp_input_dir = """<?xml version="1.0" ?>
 exp_select_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required choice option" name="choice" optional="False" type="select">
+\t\t<param label="-c/--choice: An example of required choice option" name="choice" optional="False" type="select">
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
 \t\t\t<option value="choice3">choice3</option>
@@ -1054,12 +1076,12 @@ exp_select_1 = """<?xml version="1.0" ?>
 exp_select_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required choice option" name="choice" optional="False" type="select">
+\t\t<param label="-c/--choice: An example of required choice option" name="choice" optional="False" type="select">
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
 \t\t\t<option value="choice3">choice3</option>
 \t\t</param>
-\t\t<param label="An example of optional choice option" name="select" optional="True" type="select">
+\t\t<param label="-s/--select: An example of optional choice option" name="select" optional="True" type="select">
 \t\t\t<option selected="True" value="None">Selection is Optional</option>
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
@@ -1073,7 +1095,7 @@ exp_select_2 = """<?xml version="1.0" ?>
 exp_multiple_select = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of required choice option" multiple="True" name="choice" optional="False" type="select">
+\t\t<param label="-c/--choice: An example of required choice option" multiple="True" name="choice" optional="False" type="select">
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
 \t\t\t<option value="choice3">choice3</option>
@@ -1087,7 +1109,7 @@ exp_repeat_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
 \t\t<repeat name="input_files_input_fps" optional="False" title="input_fps">
-\t\t\t<param label="An example of required existing_filepaths option" name="additional_input" type="data"/>
+\t\t\t<param label="-i/--input_fps: An example of required existing_filepaths option" name="additional_input" type="data"/>
 \t\t</repeat>
 \t</inputs>
 \t<outputs/>
@@ -1098,10 +1120,10 @@ exp_repeat_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
 \t\t<repeat name="input_files_input_fps" optional="False" title="input_fps">
-\t\t\t<param label="An example of required existing_filepaths option" name="additional_input" type="data"/>
+\t\t\t<param label="-i/--input_fps: An example of required existing_filepaths option" name="additional_input" type="data"/>
 \t\t</repeat>
 \t\t<repeat name="input_files_repeat" optional="True" title="repeat">
-\t\t\t<param label="An example of optional existing_filepaths option" name="additional_input" type="data"/>
+\t\t\t<param label="--repeat: An example of optional existing_filepaths option" name="additional_input" type="data"/>
 \t\t</repeat>
 \t</inputs>
 \t<outputs/>
@@ -1130,7 +1152,7 @@ exp_output_2 = """<?xml version="1.0" ?>
 exp_boolean_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of boolean option" name="true_boolean" selected="False" type="boolean"/>
+\t\t<param label="-t/--true_boolean: An example of boolean option" name="true_boolean" selected="False" type="boolean"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1139,8 +1161,8 @@ exp_boolean_1 = """<?xml version="1.0" ?>
 exp_boolean_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of boolean option" name="true_boolean" selected="False" type="boolean"/>
-\t\t<param label="An example of boolean option" name="false_boolean" selected="False" type="boolean"/>
+\t\t<param label="-t/--true_boolean: An example of boolean option" name="true_boolean" selected="False" type="boolean"/>
+\t\t<param label="--false_boolean: An example of boolean option" name="false_boolean" selected="False" type="boolean"/>
 \t</inputs>
 \t<outputs/>
 </tool>
@@ -1149,15 +1171,15 @@ exp_boolean_2 = """<?xml version="1.0" ?>
 exp_update = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
-\t\t<param label="An example of existing_path option" name="input_fp" type="data"/>
-\t\t<param label="An example of choice option" name="choice_ex" optional="True" type="select">
+\t\t<param label="-i/--input_fp: An example of existing_path option" name="input_fp" type="data"/>
+\t\t<param label="-c/--choice_ex: An example of choice option" name="choice_ex" optional="True" type="select">
 \t\t\t<option selected="True" value="None">Selection is Optional</option>
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
 \t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t\t<repeat name="input_files_repeat_ex" optional="True" title="repeat_ex">
-\t\t\t<param label="An example of existing_filepaths option" name="additional_input" type="data"/>
+\t\t\t<param label="-r/--repeat_ex: An example of existing_filepaths option" name="additional_input" type="data"/>
 \t\t</repeat>
 \t</inputs>
 \t<outputs>
@@ -1193,15 +1215,15 @@ example_script.py -i example_script_input -o example_script_output
 compress_path.py -i example_script_output -o $output_fp
 </command>
 \t<inputs>
-\t\t<param label="An example of existing_path option" name="input_fp" type="data"/>
-\t\t<param label="An example of choice option" name="choice_ex" optional="True" type="select">
+\t\t<param label="-i/--input_fp: An example of existing_path option" name="input_fp" type="data"/>
+\t\t<param label="-c/--choice_ex: An example of choice option" name="choice_ex" optional="True" type="select">
 \t\t\t<option selected="True" value="None">Selection is Optional</option>
 \t\t\t<option value="choice1">choice1</option>
 \t\t\t<option value="choice2">choice2</option>
 \t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t\t<repeat name="input_files_repeat_ex" optional="True" title="repeat_ex">
-\t\t\t<param label="An example of existing_filepaths option" name="additional_input" type="data"/>
+\t\t\t<param label="-r/--repeat_ex: An example of existing_filepaths option" name="additional_input" type="data"/>
 \t\t</repeat>
 \t</inputs>
 \t<outputs>

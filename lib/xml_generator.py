@@ -116,6 +116,12 @@ class OptionInfo(object):
         """Return True if the option has default value"""
         return self.default is not None
 
+    def get_label(self):
+        """Returns a string with the label for the option"""
+        label = self.short_opt + "/" if self.short_opt else ""
+        label = label + self.long_opt if self.long_opt else label[:-1]
+        label += ": " + self.label.replace("%default", str(self.default))
+        return label
 
 class ScriptInfo(object):
     """Class modeling a script from Galaxy's point of view"""
@@ -390,8 +396,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
         param.setAttribute("optional", str(self._is_optional))
 
         if option.has_default():
@@ -408,8 +413,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
         param.setAttribute("optional", str(self._is_optional))
 
         if option.has_default():
@@ -422,8 +426,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", "data")
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
 
         self.inputs.appendChild(param)
 
@@ -432,8 +435,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
 
         if self._is_optional:
             opt = self.doc.createElement("option")
@@ -458,8 +460,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", "select")
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
         param.setAttribute("multiple", "True")
 
         if self._is_optional:
@@ -490,8 +491,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", "additional_input")
         param.setAttribute("type", "data")
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
 
         repeat.appendChild(param)
         self.inputs.appendChild(repeat)
@@ -508,8 +508,7 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("type", option.type)
         param.setAttribute("name", option.name)
-        param.setAttribute("label", option.label.replace("%default",
-            str(option.default)))
+        param.setAttribute("label", option.get_label())
         param.setAttribute("selected", option.default)
         self.inputs.appendChild(param)
 
