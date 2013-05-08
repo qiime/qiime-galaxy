@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __author__ = "Jose Antonio Navas Molina"
-__copyright__ = "Copyright 2011, The Galaxy-QIIME Project"
+__copyright__ = "Copyright 2013, The Galaxy-QIIME Project"
 __credits__ = ["Jose Antonio Navas Molina"]
 __license__ = "GPL"
 __version__ = "0.0.1-dev"
@@ -948,15 +948,9 @@ exp_select_1 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
 \t\t<param label="An example of required choice option" name="choice" optional="False" type="select">
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t</inputs>
 \t<outputs/>
@@ -967,29 +961,15 @@ exp_select_2 = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
 \t\t<param label="An example of required choice option" name="choice" optional="False" type="select">
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t\t<param label="An example of optional choice option" name="select" optional="True" type="select">
-\t\t\t<option selected="True" value="None">
-\t\t\t\tSelection is Optional
-\t\t\t</option>
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option selected="True" value="None">Selection is Optional</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t</inputs>
 \t<outputs/>
@@ -1000,15 +980,9 @@ exp_multiple_select = """<?xml version="1.0" ?>
 <tool>
 \t<inputs>
 \t\t<param label="An example of required choice option" multiple="True" name="choice" optional="False" type="select">
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t</inputs>
 \t<outputs/>
@@ -1083,18 +1057,10 @@ exp_update = """<?xml version="1.0" ?>
 \t<inputs>
 \t\t<param label="An example of existing_path option" name="input_fp" type="data"/>
 \t\t<param label="An example of choice option" name="choice_ex" optional="True" type="select">
-\t\t\t<option selected="True" value="None">
-\t\t\t\tSelection is Optional
-\t\t\t</option>
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option selected="True" value="None">Selection is Optional</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t\t<repeat name="input_files_repeat_ex" optional="True" title="repeat_ex">
 \t\t\t<param label="An example of existing_filepaths option" name="additional_input" type="data"/>
@@ -1108,14 +1074,11 @@ exp_update = """<?xml version="1.0" ?>
 
 exp_full_xml ="""<?xml version="1.0" ?>
 <tool id="example_script" name="example script" version="1.4.0-dev">
-\t<description>
-\t\tAn example of brief description
-\t</description>
+\t<description>An example of brief description</description>
 \t<requirements>
 \t\t<requirement type="package">qiime</requirement>
 \t</requirements>
-\t<command>
-\t\tuncompress_tgz.py -i $input_fp -o example_script_input;
+\t<command>uncompress_tgz.py -i $input_fp -o example_script_input;
 example_script.py -i example_script_input -o example_script_output
 #if str($choice_ex) != 'None':
  -c $choice_ex
@@ -1134,23 +1097,14 @@ example_script.py -i example_script_input -o example_script_output
 #end if
 ;
 compress_path.py -i example_script_output -o $output_fp
-
-\t</command>
+</command>
 \t<inputs>
 \t\t<param label="An example of existing_path option" name="input_fp" type="data"/>
 \t\t<param label="An example of choice option" name="choice_ex" optional="True" type="select">
-\t\t\t<option selected="True" value="None">
-\t\t\t\tSelection is Optional
-\t\t\t</option>
-\t\t\t<option value="choice1">
-\t\t\t\tchoice1
-\t\t\t</option>
-\t\t\t<option value="choice2">
-\t\t\t\tchoice2
-\t\t\t</option>
-\t\t\t<option value="choice3">
-\t\t\t\tchoice3
-\t\t\t</option>
+\t\t\t<option selected="True" value="None">Selection is Optional</option>
+\t\t\t<option value="choice1">choice1</option>
+\t\t\t<option value="choice2">choice2</option>
+\t\t\t<option value="choice3">choice3</option>
 \t\t</param>
 \t\t<repeat name="input_files_repeat_ex" optional="True" title="repeat_ex">
 \t\t\t<param label="An example of existing_filepaths option" name="additional_input" type="data"/>
@@ -1159,9 +1113,7 @@ compress_path.py -i example_script_output -o $output_fp
 \t<outputs>
 \t\t<data format="tgz" name="output_fp"/>
 \t</outputs>
-\t<help>
-\t\tAn example of script description
-\t</help>
+\t<help>An example of script description</help>
 </tool>
 """
 
