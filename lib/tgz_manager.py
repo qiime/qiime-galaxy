@@ -42,6 +42,11 @@ def extract_from_tgz(tgz_file, output_path):
     """
     try:
         t = tarfile.open(name = tgz_file, mode = 'r:gz')
+    except tarfile.ReadError, e:
+        if str(e) == "not a gzip file":
+            raise ValueError, ERROR_MSG
+        raise tarfile.ReadError, e
+    else:
         names_list = t.getnames()
         # if the tgz_file only has one file is not necessary to generate an
         # output directory
@@ -51,7 +56,4 @@ def extract_from_tgz(tgz_file, output_path):
         else:
             t.extractall(path=output_path)
         t.close()
-    except tarfile.ReadError, e:
-            if str(e) == "not a gzip file":
-                raise ValueError, ERROR_MSG
-            raise tarfile.ReadError, e
+    
