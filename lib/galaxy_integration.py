@@ -21,6 +21,9 @@ def parse_config_file(lines):
     Returns:
         result: a dict of {script:(section, remove_opts)}
         sections: list with all sections
+
+    Note: raises a ValueError if the format of the configuration file is not
+        correct
     """
     result = {}
     sections = []
@@ -47,6 +50,14 @@ def parse_config_file(lines):
 
 def create_dirs(galaxy_dir, sections):
     """Create directories in the galaxy tool folder for all the QIIME sections
+
+    Inputs:
+        galaxy_dir: the full path to the Galaxy installation directory
+        sections: a list with the different sections in which the QIIME scripts
+            will be grouped by
+
+    Note: raises a ValueError if the galaxy_dir path doesn't follow the
+        directory structure of a Galaxy installation directory
     """
     tools_dir = path.join(galaxy_dir, 'tools')
 
@@ -62,10 +73,18 @@ def create_dirs(galaxy_dir, sections):
 def get_galaxy_tool_conf_file(galaxy_dir, update):
     """Generates the contents of the Galaxy's tool_conf.xml file
 
+    Inputs:
+        galaxy_dir: the full path to the Galaxy installation directory
+        update: boolean showing if the current tool_conf file should be updated
+            or a new tool_conf file should be created
+
     Returns a xml.dom.minidom.Document object which contains the tool_conf.xml
     file. If update is True, it parses the current tool_conf.xml file present
     in the Galaxy installation folder and updates it. Otherwise, it generates
     a new tool_conf.xml file from scratch.
+
+    Note: raises a ValueError if the galaxy_dir path doesn't follow the
+        directory structure of a Galaxy installation directory
     """
     tool_conf_fp = path.join(galaxy_dir, 'tool_conf.xml')
 
@@ -94,6 +113,11 @@ def get_galaxy_tool_conf_file(galaxy_dir, update):
 def get_section_node(section, xml):
     """Returns the XML node that corresponds to the provided section
 
+    Inputs:
+        section: string containing the name of the section to be searched
+        xml: the xml.dom.minidom.Document object where the search should be
+            performed
+
     Searches in the xml.dom.minidom.Document 'xml' for the section node that
     corresponds to the section 'section'. If it doesn't exists, returns None.
     """
@@ -104,6 +128,11 @@ def get_section_node(section, xml):
 
 def exist_script_in_section(script, section_node):
     """Checks if the script exists in the given XML section node
+
+    Inputs:
+        script: string containing the name of the script to be searched
+        section_node: DOM Element object of a section where the search should
+            be performed
 
     Returns True if the script 'script' is present in the XML section node
     'section_node'. Otherwise, returns False.
@@ -120,6 +149,12 @@ def exist_script_in_section(script, section_node):
 
 def add_section_to_xml(section, script_list, xml):
     """Adds the specified section with the given scripts to the XML document
+
+    Inputs:
+        section: string with the name of the section to be added
+        script_list: a list with the scripts names to be added under the new
+            section
+        xml: the xml.dom.minidom.Document object where to add the new section
     """
     toolbox = xml.firstChild
 
@@ -140,7 +175,11 @@ def add_section_to_xml(section, script_list, xml):
 def update_tool_conf_xml(tool_conf, section_dict):
     """Updates the tool_conf xml file with the specified sections
 
-    The section_dict is a dictionary of {'section name': scripts_list}.
+    Inputs:
+        tool_conf: the xml.dom.minidom.Document object to be updated with the
+            new sections and scripts indicated by section_dict
+        section_dict: a dictionary of {'section name': scripts_list}
+
     It modifies the tool_conf xml.dom.minidom.Document in order to contain also
     the information of section_dict
     """
@@ -158,24 +197,36 @@ def update_tool_conf_xml(tool_conf, section_dict):
         else:
             add_section_to_xml(section, section_dict[section], tool_conf)
 
-def create_activate_file(galaxy_dist_dir):
+def create_activate_file(galaxy_dir):
     """Generates the activate.sh file in the Galaxy installation folder
+
+    Input:
+        galaxy_dir: the full path to the Galaxy installation directory
 
     The activate.sh contains the environment variables definitions needed
     for running QIIME within the Galaxy environment
     """
-    activate_fp = path.join(galaxy_dist_dir, 'activate.sh')
+    activate_fp = path.join(galaxy_dir, 'activate.sh')
     if path.exists(activate_fp):
-        activate_bak_fp = path.join(galaxy_dist_dir, 'activate.sh.bak')
+        activate_bak_fp = path.join(galaxy_dir, 'activate.sh.bak')
         copyfile(activate_fp, activate_bak_fp)
         remove(activate_fp)
     f = open(activate_fp, 'w')
-    f.write("export GALAXY_HOME=%s\n" % galaxy_dist_dir)
+    f.write("export GALAXY_HOME=%s\n" % galaxy_dir)
     f.close()
 
 def integrate(scripts_dir, galaxy_dist_dir, config_file, update_tool_conf,
                                                                         log_fp):
     """Integrates the tools in the scripts folder into the given Galaxy instance
+
+    Inputs:
+        scripts_dir: path to the directory containing all the scripts to be 
+            integrated on Galaxy
+        galaxy_dist_dir: path to the Galaxy's installation folder
+        config_file: path to the Galaxy-QIIME configuration file
+        update_tool_conf: boolean showing if the current tool_conf file should
+            be updated or a new tool_conf file should be created 
+        log_fp: path to where the log file should be written
 
     Walks through all the scripts present in the 'scripts_dir' folder and 
     integrates them in the Galaxy instance 'galaxy_dist_dir'. The integration is
