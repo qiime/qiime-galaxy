@@ -25,10 +25,12 @@ class GalaxyIntegrationTest(TestCase):
         self.tmp_dir = tempfile.gettempdir()
         self.sections = ['Section1', 'Section2']
 
-        self.script1 = './support_files/script1.py'
-        self.script2 = './support_files/script2.py'
-        self.script3 = './support_files/script3.py'
-        self.config_file = './support_files/config_file.txt'
+        test_dir = path.dirname(path.abspath(__file__))
+
+        self.script1 = path.join(test_dir, './support_files/script1.py')
+        self.script2 = path.join(test_dir, './support_files/script2.py')
+        self.script3 = path.join(test_dir, './support_files/script3.py')
+        self.config_file = path.join(test_dir, './support_files/config_file.txt')
 
         self._paths_to_clean_up = []
         self._dirs_to_clean_up = []
