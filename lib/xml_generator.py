@@ -148,7 +148,8 @@ class ScriptInfo(object):
                 script_info_dict['optional_options'])
         except KeyError:
             self.optional_opts = []
-        self.help = script_info_dict['script_description']
+        self.help = '\n'.join([script_info_dict['script_description'],
+            script_info_dict['output_description']])
         self.command = command
 
     def _get_optional_opt(self, name):
