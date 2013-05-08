@@ -170,7 +170,7 @@ def create_activate_file(galaxy_dist_dir):
         copyfile(activate_fp, activate_bak_fp)
         remove(activate_fp)
     f = open(activate_fp, 'w')
-    f.write("export GALAXY_HOME=%s\n" % path.abspath(galaxy_dist_dir))
+    f.write("export GALAXY_HOME=%s\n" % galaxy_dist_dir)
     f.close()
 
 def integrate(scripts_dir, galaxy_dist_dir, config_file, update_tool_conf,
@@ -192,6 +192,8 @@ def integrate(scripts_dir, galaxy_dist_dir, config_file, update_tool_conf,
     Otherwise, it will create a log file in the scripts_dir folder
     """
     script_dict, sections = parse_config_file(open(config_file, 'U'))
+
+    galaxy_dist_dir = path.abspath(galaxy_dist_dir)
 
     create_dirs(galaxy_dist_dir, sections)
 
