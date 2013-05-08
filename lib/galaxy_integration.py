@@ -1,226 +1,299 @@
 #!/usr/bin/env python
 
-"""
-	Integrates all the scripts of the given directory on the galaxy distance.
-"""
-
-__author__ = "Jose Antonio Navas"
-__copyright__ = "Copyright 2011, The QIIME Project"
-__credits__ = ["Jose Antonio Navas"]
+__author__ = "Jose Antonio Navas Molina"
+__copyright__ = "Copyright 2013, The Galaxy-QIIME Project"
+__credits__ = ["Jose Antonio Navas Molina"]
 __license__ = "GPL"
-__version__ = "1.4.0-dev"
-__maintainer__ = "Jose Antonio Navas"
+__version__ = "0.0.1-dev"
+__maintainer__ = "Jose Antonio Navas Molina"
 __email__ = "josenavasmolina@gmail.com"
 __status__ = "Development"
 
-from os import path, mkdir, walk, remove, environ
+from os import path, mkdir, walk, remove
+from shutil import copyfile
 from site import addsitedir
 from xml.dom.minidom import parse, Document
 from xml_generator import make_xml
-import commands
 
 def parse_config_file(lines):
-	"""
-		lines: configuration file which contains the section structure of the scripts
+    """Parser for the Galaxy-QIIME configuration file
 
-		Returns:
-			result: dict of {script:(section, remove_opts)}
-			sections: list which contains all the different sections which tools are classified
-	"""
-	result = {}
-	sections = []
+    Returns:
+        result: a dict of {script:(section, remove_opts)}
+        sections: list with all sections
 
-	current_section = None
+    Note: raises a ValueError if the format of the configuration file is not
+        correct
+    """
+    result = {}
+    sections = []
 
-	for line in lines:
-		if line and line != "\n":
-			if line.startswith('#'):
-				continue
-			elif line.startswith('\t'):
-				current_section = line.split('\t')[1].replace('\n', '')
-				sections.append(current_section)
-			else:
-				if current_section is None:
-					raise ValueError, 'Bad configuration file'
-				fields = line.split()
-				try:
-					result[fields[0]] = (current_section, fields[1])
-				except IndexError:
-					result[fields[0]] = (current_section, None)
+    current_section = None
 
-	return result, sections
+    for line in lines:
+        if line and line != "\n":
+            if line.startswith('#'):
+                continue
+            elif line.startswith('\t'):
+                current_section = line.split('\t')[1].replace('\n', '')
+                sections.append(current_section)
+            else:
+                if current_section is None:
+                    raise ValueError, 'Bad configuration file'
+                fields = line.split()
+                try:
+                    result[fields[0]] = (current_section, fields[1])
+                except IndexError:
+                    result[fields[0]] = (current_section, None)
+
+    return result, sections
 
 def create_dirs(galaxy_dir, sections):
-	"""
-		galaxy_dir: galaxy home directory path
-		sections: list which contains all the different sections which tools are classified
+    """Create directories in the galaxy tool folder for all the QIIME sections
 
-		Create the section's directories under the path galaxy_dir/tools, if they does not exists
-	"""
-	tools_dir = path.join(galaxy_dir, 'tools')
+    Inputs:
+        galaxy_dir: the full path to the Galaxy installation directory
+        sections: a list with the different sections in which the QIIME scripts
+            will be grouped by
 
-	if not path.exists(tools_dir):
-		raise ValueError, 'Wrong galaxy installation path'
+    Note: raises a ValueError if the galaxy_dir path doesn't follow the
+        directory structure of a Galaxy installation directory
+    """
+    tools_dir = path.join(galaxy_dir, 'tools')
 
-	for sect in sections:
-		sect = sect.replace(" ", "").lower()
-		dir_path = path.join(tools_dir, sect)
-		if not path.exists(dir_path):
-			mkdir(dir_path)
+    if not path.exists(tools_dir):
+        raise ValueError, 'Wrong galaxy installation path'
+
+    for sect in sections:
+        sect = sect.replace(" ", "").lower()
+        dir_path = path.join(tools_dir, sect)
+        if not path.exists(dir_path):
+            mkdir(dir_path)
 
 def get_galaxy_tool_conf_file(galaxy_dir, update):
-	"""
-		galaxy_dir: galaxy home directory path
-		update: boolean to know if we had to update the tool_conf or generate a new one
+    """Generates the contents of the Galaxy's tool_conf.xml file
 
-		Returns a xml.dom.minidom.Document object which contains the tool_conf.xml file
-	"""
-	tool_conf_fp = path.join(galaxy_dir, 'tool_conf.xml')
+    Inputs:
+        galaxy_dir: the full path to the Galaxy installation directory
+        update: boolean showing if the current tool_conf file should be updated
+            or a new tool_conf file should be created
 
-	if not path.exists(tool_conf_fp):
-		raise ValueError, 'Wrong galaxy installation path'
+    Returns a xml.dom.minidom.Document object which contains the tool_conf.xml
+    file. If update is True, it parses the current tool_conf.xml file present
+    in the Galaxy installation folder and updates it. Otherwise, it generates
+    a new tool_conf.xml file from scratch.
 
-	if update:
-		return parse(tool_conf_fp)
-	else:
-		tool_conf = Document()
+    Note: raises a ValueError if the galaxy_dir path doesn't follow the
+        directory structure of a Galaxy installation directory
+    """
+    tool_conf_fp = path.join(galaxy_dir, 'tool_conf.xml')
 
-		toolbox = tool_conf.createElement("toolbox")
-		tool_conf.appendChild(toolbox)
+    if not path.exists(tool_conf_fp):
+        raise ValueError, 'Wrong galaxy installation path'
 
-		section = tool_conf.createElement("section")
-		section.setAttribute("name", "Get Data")
-		section.setAttribute("id", "getext")
-		toolbox.appendChild(section)
+    if update:
+        return parse(tool_conf_fp)
+    else:
+        tool_conf = Document()
 
-		tool = tool_conf.createElement("tool")
-		tool.setAttribute("file", "data_source/upload.xml")
-		section.appendChild(tool)
+        toolbox = tool_conf.createElement("toolbox")
+        tool_conf.appendChild(toolbox)
 
-		return tool_conf
+        section = tool_conf.createElement("section")
+        section.setAttribute("name", "Get Data")
+        section.setAttribute("id", "getext")
+        toolbox.appendChild(section)
+
+        tool = tool_conf.createElement("tool")
+        tool.setAttribute("file", "data_source/upload.xml")
+        section.appendChild(tool)
+
+        return tool_conf
 
 def get_section_node(section, xml):
-	"""
-		section: section name which we are looking for
-		xml: xml document where to find the section
+    """Returns the XML node that corresponds to the provided section
 
-		Return the section node if it exists, None otherwise
-	"""
-	for node in xml.getElementsByTagName('section'):
-		if node.attributes.getNamedItem('name').value == section:
-			return node
-	return None
+    Inputs:
+        section: string containing the name of the section to be searched
+        xml: the xml.dom.minidom.Document object where the search should be
+            performed
+
+    Searches in the xml.dom.minidom.Document 'xml' for the section node that
+    corresponds to the section 'section'. If it doesn't exists, returns None.
+    """
+    for node in xml.getElementsByTagName('section'):
+        if node.attributes.getNamedItem('name').value == section:
+            return node
+    return None
 
 def exist_script_in_section(script, section_node):
-	"""
-		script: script which we are looking for
-		section_node: xml node where to find the script
+    """Checks if the script exists in the given XML section node
 
-		Return True if the script already exists in this section_node, False otherwise
-	"""
-	name, ext = path.splitext(script)
-	filepath = section_node.attributes.getNamedItem('name').value.replace(" ", "").lower() + "/" + name + ".xml"
+    Inputs:
+        script: string containing the name of the script to be searched
+        section_node: DOM Element object of a section where the search should
+            be performed
 
-	for node in section_node.childNodes:
-		if node.attributes != None and node.attributes.getNamedItem('file').value == filepath:
-			return True
-	return False
+    Returns True if the script 'script' is present in the XML section node
+    'section_node'. Otherwise, returns False.
+    """
+    name, ext = path.splitext(script)
+    filepath = section_node.attributes.getNamedItem('name').value.replace(" ",
+        "").lower() + "/" + name + ".xml"
+
+    for node in section_node.childNodes:
+        if node.attributes != None and \
+            node.attributes.getNamedItem('file').value == filepath:
+            return True
+    return False
 
 def add_section_to_xml(section, script_list, xml):
-	"""
-		section: section to add to the xml
-		script_list: list with the scripts to add under the section
-		xml: xml object where to add the section
-	"""
-	toolbox = xml.firstChild
+    """Adds the specified section with the given scripts to the XML document
 
-	section_node = xml.createElement('section')
-	section_node.setAttribute("name", section)
-	section_node.setAttribute("id", section.replace(" ", "").lower())
-	toolbox.appendChild(section_node)
+    Inputs:
+        section: string with the name of the section to be added
+        script_list: a list with the scripts names to be added under the new
+            section
+        xml: the xml.dom.minidom.Document object where to add the new section
+    """
+    toolbox = xml.firstChild
 
-	for script in script_list:
-		name, ext = path.splitext(script)
-		filepath = section.replace(" ", "").lower() + "/" + name + ".xml"
+    section_node = xml.createElement('section')
+    section_node.setAttribute("name", section)
+    section_node.setAttribute("id", section.replace(" ", "").lower())
+    toolbox.appendChild(section_node)
 
-		tool_node = xml.createElement('tool')
-		tool_node.setAttribute("file", filepath)
-		section_node.appendChild(tool_node)
+    for script in script_list:
+        name, ext = path.splitext(script)
+        filepath = section.replace(" ", "").lower() + "/" + name + ".xml"
+
+        tool_node = xml.createElement('tool')
+        tool_node.setAttribute("file", filepath)
+        section_node.appendChild(tool_node)
 
 
 def update_tool_conf_xml(tool_conf, section_dict):
-	for section in section_dict.keys():
-		section_node = get_section_node(section, tool_conf)
-		if section_node:
-			for script in section_dict[section]:
-				if not exist_script_in_section(script, section_node):
-					name, ext = path.splitext(script)
-					filepath = section.replace(" ", "").lower() + "/" + name + ".xml"
-					tool_node = tool_conf.createElement('tool')
-					tool.setAttribute("file", filepath)
-					section_node.appendChild(tool_node)
-		else:
-			add_section_to_xml(section, section_dict[section], tool_conf)
+    """Updates the tool_conf xml file with the specified sections
 
-def integrate(scripts_dir, galaxy_dist_dir, config_file, update_tool_conf, log_fp):
-	"""
-		scripts_dir: full path to the directory which contains the scripts to integrate
-		galaxy_dist_dir: full path to the Galaxy home directory
-		config_file: path to the configuration file which contains the section structure of the scripts
-	"""
-	script_dict, sections = parse_config_file(open(config_file, 'U'))
+    Inputs:
+        tool_conf: the xml.dom.minidom.Document object to be updated with the
+            new sections and scripts indicated by section_dict
+        section_dict: a dictionary of {'section name': scripts_list}
 
-	create_dirs(galaxy_dist_dir, sections)
+    It modifies the tool_conf xml.dom.minidom.Document in order to contain also
+    the information of section_dict
+    """
+    for section in section_dict.keys():
+        section_node = get_section_node(section, tool_conf)
+        if section_node:
+            for script in section_dict[section]:
+                if not exist_script_in_section(script, section_node):
+                    name, ext = path.splitext(script)
+                    filepath = section.replace(" ", "").lower()\
+                        + "/" + name + ".xml"
+                    tool_node = tool_conf.createElement('tool')
+                    tool.setAttribute("file", filepath)
+                    section_node.appendChild(tool_node)
+        else:
+            add_section_to_xml(section, section_dict[section], tool_conf)
 
-	tool_conf = get_galaxy_tool_conf_file(galaxy_dist_dir, update_tool_conf)
+def create_activate_file(galaxy_dir):
+    """Generates the activate.sh file in the Galaxy installation folder
 
-	section_dict = {}
-	for section in sections:
-		section_dict[section] = []
+    Input:
+        galaxy_dir: the full path to the Galaxy installation directory
 
-	if not log_fp:
-		log_fp = path.join(scripts_dir, 'integration.log')
+    The activate.sh contains the environment variables definitions needed
+    for running QIIME within the Galaxy environment
+    """
+    activate_fp = path.join(galaxy_dir, 'activate.sh')
+    if path.exists(activate_fp):
+        activate_bak_fp = path.join(galaxy_dir, 'activate.sh.bak')
+        copyfile(activate_fp, activate_bak_fp)
+        remove(activate_fp)
+    f = open(activate_fp, 'w')
+    f.write("export GALAXY_HOME=%s\n" % galaxy_dir)
+    f.close()
 
-	log_file = open(log_fp, 'w')
+def integrate(scripts_dir, galaxy_dist_dir, config_file, update_tool_conf,
+                                                                        log_fp):
+    """Integrates the tools in the scripts folder into the given Galaxy instance
 
-	addsitedir(scripts_dir)
+    Inputs:
+        scripts_dir: path to the directory containing all the scripts to be 
+            integrated on Galaxy
+        galaxy_dist_dir: path to the Galaxy's installation folder
+        config_file: path to the Galaxy-QIIME configuration file
+        update_tool_conf: boolean showing if the current tool_conf file should
+            be updated or a new tool_conf file should be created 
+        log_fp: path to where the log file should be written
 
-	for root, dirs, files in walk(scripts_dir):
-		for name in files:
-			if name.endswith('.py'):
-				log_file.write("Generating XML file for %s script... " % name)
-				if name in script_dict.keys():
-					section, remove_opts = script_dict[name]
-					output_dir = path.join(galaxy_dist_dir, 'tools', section.replace(" ", "").lower())
-					try:
-						make_xml(name, output_dir, remove_opts)
-						section_dict[section].append(name)
-						log_file.write("Ok\n")
-					except Exception as exc:
-						log_file.write(str(type(exc)) + " : " + str(exc) + "\n")
-				else:
-					log_file.write("skipped - not in configuration file\n")
+    Walks through all the scripts present in the 'scripts_dir' folder and 
+    integrates them in the Galaxy instance 'galaxy_dist_dir'. The integration is
+    done according to the 'config_file', which specifies: the different sections
+    in which the scripts will be grouped, which scripts of the script folder 
+    will be integrated and which option of these script will NOT be included
+    in the Galaxy interface.
+
+    If update_tool_conf is True, it will update the current tool_conf.xml file
+    present in the Galaxy instance. Otherwise, it will override it with a new
+    tool_conf.xml configuration file.
+
+    If a log_fp is given, the script will write the log file into this path.
+    Otherwise, it will create a log file in the scripts_dir folder
+    """
+    script_dict, sections = parse_config_file(open(config_file, 'U'))
+
+    galaxy_dist_dir = path.abspath(galaxy_dist_dir)
+
+    create_dirs(galaxy_dist_dir, sections)
+
+    tool_conf = get_galaxy_tool_conf_file(galaxy_dist_dir, update_tool_conf)
+
+    section_dict = {}
+    for section in sections:
+        section_dict[section] = []
+
+    if not log_fp:
+        log_fp = path.join(scripts_dir, 'integration.log')
+
+    log_file = open(log_fp, 'w')
+
+    addsitedir(scripts_dir)
+
+    for root, dirs, files in walk(scripts_dir):
+        for name in files:
+            if name.endswith('.py'):
+                log_file.write("Generating XML file for %s script... " % name)
+                if name in script_dict.keys():
+                    section, remove_opts = script_dict[name]
+                    output_dir = path.join(galaxy_dist_dir, 'tools',
+                        section.replace(" ", "").lower())
+                    try:
+                        make_xml(name, output_dir, remove_opts)
+                        section_dict[section].append(name)
+                        log_file.write("Ok\n")
+                    except Exception as exc:
+                        log_file.write(str(type(exc)) + " : " + str(exc) + "\n")
+                else:
+                    log_file.write("skipped - not in configuration file\n")
 
 
-	log_file.write("Generating tool_conf... ")
-	update_tool_conf_xml(tool_conf, section_dict)
-	log_file.write("Ok\n")
+    log_file.write("Generating tool_conf... ")
+    update_tool_conf_xml(tool_conf, section_dict)
+    log_file.write("Ok\n")
 
-	log_file.write("Writing tool_conf... ")
-	# Write tool_conf.xml file
-	tool_conf_fp = path.join(galaxy_dist_dir, 'tool_conf.xml')
-	f = open(tool_conf_fp, 'w')
-	f.write(tool_conf.toprettyxml(indent='\t'))
-	f.close()
-	log_file.write("Ok\n")
+    log_file.write("Writing tool_conf... ")
+    # Write tool_conf.xml file
+    tool_conf_fp = path.join(galaxy_dist_dir, 'tool_conf.xml')
+    f = open(tool_conf_fp, 'w')
+    f.write(tool_conf.toprettyxml(indent='\t'))
+    f.close()
+    log_file.write("Ok\n")
 
-	log_file.write("Updating environment... ")
-	command_string = 'echo "\nexport GALAXY_HOME=%s" >> ~/.bashrc' % path.abspath(galaxy_dist_dir)
-	(append_status, append_out) = commands.getstatusoutput(command_string)
-	if append_status != 0:
-		raise ValueError, "Error updating environment"
-	else:
-		log_file.write("Ok\n")
+    log_file.write("Generating activate.sh file... ")
+    create_activate_file(galaxy_dist_dir)
+    log_file.write("Ok\n")
 
-	# Close log file
-	log_file.close()
+    # Close log file
+    log_file.close()
