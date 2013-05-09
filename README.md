@@ -22,14 +22,14 @@ To install _QIIME-Galaxy_ in your system, you can follow these instructions:
 
 1. Get the _QIIME-Galaxy_ code by cloning the repository:
 
-    git clone git://github.com/qiime/qiime-galaxy.git
+        git clone git://github.com/qiime/qiime-galaxy.git
 
 2. Add the ```scripts``` folder to your path and the ```lib``` folder to your
 python path.
 
-    echo "export PATH=$HOME/qiime-galaxy/scripts:$PATH" >> $HOME/.bashrc
-    echo "PYTHONPATH=$HOME/qiime-galaxy/lib:$PYTHONPATH" >> $HOME/.bashrc
-    source $HOME/.bashrc
+        echo "export PATH=$HOME/qiime-galaxy/scripts:$PATH" >> $HOME/.bashrc
+        echo "PYTHONPATH=$HOME/qiime-galaxy/lib:$PYTHONPATH" >> $HOME/.bashrc
+        source $HOME/.bashrc
 
 ## Usage examples
 
