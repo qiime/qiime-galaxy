@@ -28,7 +28,7 @@ To install _QIIME-Galaxy_ in your system, you can follow these instructions:
 python path.
 
         echo "export PATH=$HOME/qiime-galaxy/scripts:$PATH" >> $HOME/.bashrc
-        echo "PYTHONPATH=$HOME/qiime-galaxy/lib:$PYTHONPATH" >> $HOME/.bashrc
+        echo "export PYTHONPATH=$HOME/qiime-galaxy/lib:$PYTHONPATH" >> $HOME/.bashrc
         source $HOME/.bashrc
 
 ## Usage examples
