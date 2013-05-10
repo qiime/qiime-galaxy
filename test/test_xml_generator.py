@@ -224,6 +224,19 @@ class OptionInfoTest(TestCase):
         self.assertEqual(obs.choices, None)
         self.assertEqual(obs.format, 'tgz')
 
+        # Test of blast_db option
+        option = make_option('-b', '--blast_db_opt', type='blast_db',
+                    help='Example blast_db option')
+        obs = OptionInfo(option)
+        self.assertEqual(obs.name, 'blast_db_opt')
+        self.assertEqual(obs.type, 'blast_db')
+        self.assertEqual(obs.short_opt, '-b')
+        self.assertEqual(obs.long_opt, '--blast_db_opt')
+        self.assertEqual(obs.label, 'Example blast_db option')
+        self.assertEqual(obs.default, None)
+        self.assertEqual(obs.choices, None)
+        self.assertEqual(obs.format, None)
+
     def test_get_command_line_string(self):
         option = make_option('-e', '--example_opt', type='string',
                     help='Example string option')
@@ -441,6 +454,14 @@ class CommandGeneratorTest(TestCase):
             " != 'None':\n -c $choice\n#end if\n"
         self.assertEqual(obj.command_text, exp)
 
+    def test_generate_blast_db_command_text(self):
+        obj_info = ScriptInfo(blast_db_script_info, 'blast_db_script',
+            'blast_db_script.py')
+        obj = CommandGenerator(obj_info)
+        obj._is_optional = True
+        obj._generate_blast_db_command_text(obj_info.optional_opts[0])
+        self.assertEqual(obj.command_text, exp_blast_db_command)
+
     def test_generate_integer_float_command_text(self):
         obj_info = ScriptInfo(integer_float_script_info, 'int_float_script',
             'int_float_script.py')
@@ -609,6 +630,24 @@ class XmlOptionsAttributesGeneratorTest(TestCase):
         xml_opts_generator._generate_text_data_attributes(info.optional_opts[0])
         obs = doc.toprettyxml(indent="\t")
         self.assertEqual(obs, exp_text_data_2)
+
+    def test_generate_blast_db_attributes(self):
+        info = ScriptInfo(blast_db_script_info, 'blast_db_script',
+            'blast_db_script.py')
+        doc = Document()
+        tool = doc.createElement('tool')
+        doc.appendChild(tool)
+        inputs = doc.createElement('inputs')
+        outputs = doc.createElement('outputs')
+        tool.appendChild(inputs)
+        tool.appendChild(outputs)
+
+        xml_opts_generator = XmlOptionsAttributesGenerator(info, doc, inputs,
+                                                                    outputs)
+        xml_opts_generator._is_optional = True
+        xml_opts_generator._generate_blast_db_attributes(info.optional_opts[0])
+        obs = doc.toprettyxml(indent="\t")
+        self.assertEqual(obs, exp_blast_db)
 
     def test_generate_input_dir_attributes(self):
         info = ScriptInfo(input_dir_script_info, 'input_dir_script',
@@ -833,6 +872,18 @@ data_select_script_info['optional_options'] = [
 ]
 data_select_script_info['version'] = "1.4.0-dev"
 
+blast_db_script_info = {}
+blast_db_script_info['brief_description'] = "Example of script info with a blast_db option"
+blast_db_script_info['script_description'] = "An example of script info with an optional blast_db option"
+blast_db_script_info['script_usage'] = [("Example", "Field not used", "%prog ")]
+blast_db_script_info['output_description'] = "Description of the script output"
+blast_db_script_info['required_options'] = []
+blast_db_script_info['optional_options'] = [
+    make_option('-b', '--blast_db_opt', type='blast_db',
+        help="An example of optional blast_db option")
+]
+blast_db_script_info['version'] = "1.4.0-dev"
+
 input_dir_script_info = {}
 input_dir_script_info['brief_description'] = "Example of script info with existing_path and existing_dirpath options"
 input_dir_script_info['script_description'] = "An example of script info with a required existing_path option and an optional existing_dirpath option"
@@ -969,6 +1020,18 @@ output_XML_script_info['optional_options'] = [
 ]
 output_XML_script_info['version'] = "1.4.0-dev"
 
+exp_blast_db_command = """
+#if str($blast_db_opt) != 'None':
+ uncompress_tgz.py -i $blast_db_opt -o blast_db;
+ BLAST_DB_NAME=`ls blast_db | head -n 1`
+ BLAST_DB_NAME=#echo "\${BLAST_DB_NAME\%.*}"
+#end if
+blast_db_script.py
+#if str($blast_db_opt) != 'None':
+ -b blast_db/\$BLAST_DB_NAME
+#end if
+"""
+
 exp_cg_update = """uncompress_tgz.py -i $input_fp -o example_script_input;
 example_script.py -i example_script_input -o example_script_output
 #if str($choice_ex) != 'None':
@@ -1047,6 +1110,15 @@ exp_text_data_2 = """<?xml version="1.0" ?>
 \t<inputs>
 \t\t<param default="some_value" label="-s/--string: An example of required text option [default: some_value]" name="string" optional="False" type="text"/>
 \t\t<param label="--input_fp: An example of optional existing_filepath option" name="input_fp" optional="True" type="data"/>
+\t</inputs>
+\t<outputs/>
+</tool>
+"""
+
+exp_blast_db = """<?xml version="1.0" ?>
+<tool>
+\t<inputs>
+\t\t<param label="-b/--blast_db_opt: An example of optional blast_db option" name="blast_db_opt" optional="True" type="data"/>
 \t</inputs>
 \t<outputs/>
 </tool>
