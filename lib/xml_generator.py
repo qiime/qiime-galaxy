@@ -46,8 +46,7 @@ LIST_DICT_TO_STRING_FUNCTION = """
 GET_BLAST_DB_NAME = """
 #if str($%s) != 'None':
  uncompress_tgz.py -i $%s -o blast_db;
- BLAST_DB_NAME=`ls blast_db | head -n 1`
- BLAST_DB_NAME=#echo "\${BLAST_DB_NAME\%%.*}"
+ BLAST_DB_NAME=`get_blast_db_path.py -i blast_db`;
 #end if
 """
 
@@ -268,7 +267,7 @@ class CommandGenerator(object):
         """
         option_string = " " + option.get_command_line_string()
         option_string += " " if option.is_short_command_line() else "="
-        option_string += "blast_db/\$BLAST_DB_NAME"
+        option_string += "\$BLAST_DB_NAME"
 
         if self._is_optional:
             option_string = "\n#if str($%s) != 'None':\n%s\n#end if\n" % \
