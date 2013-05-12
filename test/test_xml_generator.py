@@ -1023,7 +1023,7 @@ output_XML_script_info['version'] = "1.4.0-dev"
 exp_blast_db_command = """
 #if str($blast_db_opt) != 'None':
  uncompress_tgz.py -i $blast_db_opt -o blast_db;
- BLAST_DB_NAME=`get_blast_db_path.py -i blast_db`
+ BLAST_DB_NAME=`get_blast_db_path.py -i blast_db`;
 #end if
 blast_db_script.py
 #if str($blast_db_opt) != 'None':

@@ -46,7 +46,7 @@ LIST_DICT_TO_STRING_FUNCTION = """
 GET_BLAST_DB_NAME = """
 #if str($%s) != 'None':
  uncompress_tgz.py -i $%s -o blast_db;
- BLAST_DB_NAME=`get_blast_db_path.py -i blast_db`
+ BLAST_DB_NAME=`get_blast_db_path.py -i blast_db`;
 #end if
 """
 
