@@ -7,7 +7,7 @@ A Python application to automatically integrate QIIME on Galaxy.
 
 To run _QIIME-Galaxy_, you will first need to get [QIIME](http://qiime.org/) and [Galaxy](http://wiki.galaxyproject.org/) successfully installed in your machine. Refer to their pages for installation details.
 
-__Note:__ _QIIME-Galaxy_ requires Python 2.7.3 to work correctly, the same version as QIIME.
+__Note:__ _QIIME-Galaxy_ requires Python 2.7.3 to work correctly. It has been tested with QIIME 1.7.0 and Galaxy revision 788cd3d06541+.
 
 ## Installation procedure
 
