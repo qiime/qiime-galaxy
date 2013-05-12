@@ -16,7 +16,7 @@ from cogent.app.util import get_tmp_filename
 import tempfile
 from format_blast_db_string import format_blast_db_string
 
-class TgzManagerTest(TestCase):
+class FormatBlastDBStringTest(TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.gettempdir()
 
