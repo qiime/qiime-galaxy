@@ -29,6 +29,7 @@ type_converter['existing_path'] = "input_dir"
 type_converter['new_filepath'] = "output"
 type_converter['new_dirpath'] = "output_dir"
 type_converter['new_path'] = "output_dir"
+type_converter['blast_db'] = "blast_db"
 
 # Definitions for the command text
 COMMAND_LINE_COMPRESS = ";\ncompress_path.py -i %s -o $%s\n"
@@ -41,6 +42,13 @@ LIST_DICT_TO_STRING_FUNCTION = """
 \t#end for
 \t#return $file_list
 #end def
+"""
+GET_BLAST_DB_NAME = """
+#if str($%s) != 'None':
+ uncompress_tgz.py -i $%s -o blast_db;
+ BLAST_DB_NAME=`ls blast_db | head -n 1`
+ BLAST_DB_NAME=#echo "\${BLAST_DB_NAME\%%.*}"
+#end if
 """
 
 class OptionInfo(object):
@@ -148,7 +156,8 @@ class ScriptInfo(object):
                 script_info_dict['optional_options'])
         except KeyError:
             self.optional_opts = []
-        self.help = script_info_dict['script_description']
+        self.help = '\n'.join([script_info_dict['script_description'],
+            script_info_dict['output_description']])
         self.command = command
 
     def _get_optional_opt(self, name):
@@ -210,6 +219,8 @@ class CommandGenerator(object):
                                     self._generate_output_dir_command_text
         self._type_dependant_functions['boolean'] = \
                                     self._generate_boolean_command_text
+        self._type_dependant_functions['blast_db'] = \
+                                    self._generate_blast_db_command_text
         self._list_dict_to_string_is_defined = False
         self._is_optional = False
         self._uncompress_command = ""
@@ -251,6 +262,20 @@ class CommandGenerator(object):
                             (option.name, option_string)
 
         self.command_text += option_string
+
+    def _generate_blast_db_command_text(self, option):
+        """Generate the command text for a option of type blast_db
+        """
+        option_string = " " + option.get_command_line_string()
+        option_string += " " if option.is_short_command_line() else "="
+        option_string += "blast_db/\$BLAST_DB_NAME"
+
+        if self._is_optional:
+            option_string = "\n#if str($%s) != 'None':\n%s\n#end if\n" % \
+                            (option.name, option_string)
+
+        self.command_text = GET_BLAST_DB_NAME % (option.name, option.name) + \
+            self.command_text + option_string
 
     def _generate_integer_float_command_text(self, option):
         """Generate the command text for a option of type integer or float"""
@@ -337,7 +362,6 @@ class CommandGenerator(object):
 
         self.command_text += option_string
 
-
 class XmlOptionsAttributesGenerator(object):
     """Class that generates the XML tags and attributes for the script options
     """
@@ -380,6 +404,8 @@ class XmlOptionsAttributesGenerator(object):
                                     self._generate_output_attributes
         self._type_dependant_functions['boolean'] = \
                                     self._generate_boolean_attributes
+        self._type_dependant_functions['blast_db'] = \
+                                    self._generate_blast_db_attributes
 
     def update(self):
         """Updates the inputs and outputs node adding the script options"""
@@ -413,6 +439,20 @@ class XmlOptionsAttributesGenerator(object):
         param = self.doc.createElement("param")
         param.setAttribute("name", option.name)
         param.setAttribute("type", option.type)
+        param.setAttribute("label", option.get_label())
+        param.setAttribute("optional", str(self._is_optional))
+
+        if option.has_default():
+            param.setAttribute("default", option.default)
+
+        self.inputs.appendChild(param)
+
+    def _generate_blast_db_attributes(self, option):
+        """Generate the XML node and attributes for a text, float or data option
+        """
+        param = self.doc.createElement("param")
+        param.setAttribute("name", option.name)
+        param.setAttribute("type", "data")
         param.setAttribute("label", option.get_label())
         param.setAttribute("optional", str(self._is_optional))
 
