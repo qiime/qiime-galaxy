@@ -9,7 +9,7 @@ __maintainer__ = "Jose Antonio Navas Molina"
 __email__ = "josenavasmolina@gmail.com"
 __status__ = "Development"
 
-from qiime.pycogent_backports.option_parsing import make_option
+from qcli.option_parsing import make_option
 from cogent.util.unit_test import TestCase, main
 from xml.dom.minidom import Document
 from xml_generator import (OptionInfo, ScriptInfo, CommandGenerator,
