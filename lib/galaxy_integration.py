@@ -192,7 +192,7 @@ def update_tool_conf_xml(tool_conf, section_dict):
                     filepath = section.replace(" ", "").lower()\
                         + "/" + name + ".xml"
                     tool_node = tool_conf.createElement('tool')
-                    tool.setAttribute("file", filepath)
+                    tool_node.setAttribute("file", filepath)
                     section_node.appendChild(tool_node)
         else:
             add_section_to_xml(section, section_dict[section], tool_conf)
